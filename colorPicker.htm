@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Picker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-left: 75px;
+        }
+        .color-box-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .color-box {
+            width: 150px;
+            height: 200px;
+            margin: 0 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: 1px solid #000;
+        }
+        .color-box input {
+            width: 60px;
+            margin-top: 5px;
+            text-align: center;
+        }
+        .color-box input[type="range"] {
+            width: 120px;
+        }
+        #resultColor {
+            width: 300px;
+            height: 100px;
+            margin-top: 20px;
+            border: 1px solid #000;
+        }
+        #pickedColors {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .picked-color {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .picked-color-box {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #000;
+            margin-right: 10px;
+        }
+        .picked-color span {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<a href="https://www.w3schools.com/tags/ref_colornames.asp">HTML Color Names</a>
+    <h1>Color Picker</h1><br>
+    <div class="color-box-container">
+        <div class="color-box" id="redBox">
+            <span style="color: darkred;">Red<br></span>
+            RGB: <span id="redRgb">0</span><br>
+            <input type="number" id="redRgbInput" placeholder="0-255" min="0" max="255" oninput="updateColor('red', 'rgb')"><br>
+            <input type="range" id="redRgbSlider" min="0" max="255" oninput="syncSlider('red', 'rgb')"><br>
+            Hex: <span id="redHex">#00</span><br>
+            <input type="text" id="redHexInput" placeholder="00-FF" maxlength="2" oninput="updateColor('red', 'hex')"><br>
+            <input type="range" id="redHexSlider" min="0" max="255" oninput="syncSlider('red', 'hex')" style="display: none;">
+        </div>
+        <div class="color-box" id="greenBox">
+            <span style="color: darkgreen;">Green<br></span>
+            RGB: <span id="greenRgb">0</span><br>
+            <input type="number" id="greenRgbInput" placeholder="0-255" min="0" max="255" oninput="updateColor('green', 'rgb')"><br>
+            <input type="range" id="greenRgbSlider" min="0" max="255" oninput="syncSlider('green', 'rgb')"><br>
+            Hex: <span id="greenHex">#00</span><br>
+            <input type="text" id="greenHexInput" placeholder="00-FF" maxlength="2" oninput="updateColor('green', 'hex')"><br>
+            <input type="range" id="greenHexSlider" min="0" max="255" oninput="syncSlider('green', 'hex')" style="display: none;">
+        </div>
+        <div class="color-box" id="blueBox">
+            <span style="color: blue;">Blue<br></span>
+            RGB: <span id="blueRgb">0</span><br>
+            <input type="number" id="blueRgbInput" placeholder="0-255" min="0" max="255" oninput="updateColor('blue', 'rgb')"><br>
+            <input type="range" id="blueRgbSlider" min="0" max="255" oninput="syncSlider('blue', 'rgb')"><br>
+            Hex: <span id="blueHex">#00</span><br>
+            <input type="text" id="blueHexInput" placeholder="00-FF" maxlength="2" oninput="updateColor('blue', 'hex')"><br>
+            <input type="range" id="blueHexSlider" min="0" max="255" oninput="syncSlider('blue', 'hex')" style="display: none;">
+        </div>
+    </div>
+    
+    <div>
+        <label for="fullHexInput">Hex Color: #</label>
+        <input type="text" id="fullHexInput" placeholder="000000 or 000" maxlength="7">
+        <button onclick="applyFullHex()">Submit</button>
+    </div>
+
+    <div id="resultColor"></div>
+    <button onclick="pickColor()">Pick</button>
+
+    <div id="pickedColors"></div>
+
+    <script>
+    function updateColor(color, type) {
+        let rgbInput = document.getElementById(`${color}RgbInput`).value.trim();
+        let hexInput = document.getElementById(`${color}HexInput`).value.trim();
+        let rgbValue;
+        let hexValue;
+
+        if (type === 'rgb') {
+            if (rgbInput.match(/^([0-9]{1,3})$/) && parseInt(rgbInput) <= 255) {
+                rgbValue = parseInt(rgbInput);
+                hexValue = rgbValue.toString(16).padStart(2, '0').toUpperCase();
+                document.getElementById(`${color}RgbSlider`).value = rgbValue;
+            } else {
+                return;
+            }
+        } else if (type === 'hex') {
+            if (hexInput.match(/^([0-9a-fA-F]{1,2})$/)) {
+                if (hexInput.length === 1) {
+                    hexInput = hexInput + hexInput;
+                }
+                rgbValue = parseInt(hexInput, 16);
+                hexValue = hexInput.toUpperCase();
+                document.getElementById(`${color}HexSlider`).value = rgbValue;
+            } else {
+                return;
+            }
+        }
+
+        document.getElementById(`${color}Hex`).textContent = `#${hexValue}`;
+        document.getElementById(`${color}Rgb`).textContent = rgbValue;
+
+        if (type === 'rgb') {
+            document.getElementById(`${color}HexInput`).value = hexValue;
+        } else if (type === 'hex') {
+            document.getElementById(`${color}RgbInput`).value = rgbValue;
+        }
+
+        updateResultColor();
+    }
+
+    function syncSlider(color, type) {
+        let value = document.getElementById(`${color}${type === 'rgb' ? 'RgbSlider' : 'HexSlider'}`).value;
+
+        if (type === 'rgb') {
+            document.getElementById(`${color}RgbInput`).value = value;
+        } else if (type === 'hex') {
+            document.getElementById(`${color}HexInput`).value = parseInt(value).toString(16).padStart(2, '0').toUpperCase();
+        }
+
+        updateColor(color, type);
+    }
+
+    function updateResultColor() {
+        const red = document.getElementById('redHex').textContent.substring(1);
+        const green = document.getElementById('greenHex').textContent.substring(1);
+        const blue = document.getElementById('blueHex').textContent.substring(1);
+
+        const hexColor = `#${red}${green}${blue}`;
+        document.getElementById('resultColor').style.backgroundColor = hexColor;
+    }
+
+    function applyFullHex() {
+        let fullHexInput = document.getElementById('fullHexInput').value.trim();
+
+        if (fullHexInput.charAt(0) === '#') {
+            fullHexInput = fullHexInput.substring(1);
+        }
+
+        let fullHex = fullHexInput.length === 3 ? fullHexInput.split('').map(ch => ch + ch).join('') : fullHexInput;
+
+        if (!fullHex.match(/^([0-9a-fA-F]{6})$/)) {
+            alert('Invalid Hex Color');
+            return;
+        }
+
+        const redHex = fullHex.substring(0, 2).toUpperCase();
+        const greenHex = fullHex.substring(2, 4).toUpperCase();
+        const blueHex = fullHex.substring(4, 6).toUpperCase();
+
+        document.getElementById('redHexInput').value = redHex;
+        document.getElementById('greenHexInput').value = greenHex;
+        document.getElementById('blueHexInput').value = blueHex;
+
+        updateColor('red', 'hex');
+        updateColor('green', 'hex');
+        updateColor('blue', 'hex');
+    }
+
+    function pickColor() {
+        const red = document.getElementById('redHex').textContent.substring(1);
+        const green = document.getElementById('greenHex').textContent.substring(1);
+        const blue = document.getElementById('blueHex').textContent.substring(1);
+
+        const hexColor = `#${red}${green}${blue}`;
+        const rgbColor = `${parseInt(red, 16)}, ${parseInt(green, 16)}, ${parseInt(blue, 16)}`;
+
+        const pickedColorsDiv = document.getElementById('pickedColors');
+
+        // Check if the color is already picked
+        const existingColors = pickedColorsDiv.getElementsByClassName('picked-color');
+        for (let colorDiv of existingColors) {
+            if (colorDiv.dataset.hexColor === hexColor) {
+                return;
+            }
+        }
+
+        const colorDiv = document.createElement('div');
+        colorDiv.className = 'picked-color';
+        colorDiv.dataset.hexColor = hexColor;
+
+        const colorBox = document.createElement('div');
+        colorBox.className = 'picked-color-box';
+        colorBox.style.backgroundColor = hexColor;
+
+        const colorInfo = document.createElement('span');
+        colorInfo.textContent = `RGB: (${rgbColor}) | HEX: ${hexColor}`;
+
+        const delButton = document.createElement('button');
+        delButton.textContent = 'Del';
+        delButton.onclick = function () {
+            pickedColorsDiv.removeChild(colorDiv);
+        };
+
+        colorDiv.appendChild(colorBox);
+        colorDiv.appendChild(colorInfo);
+        colorDiv.appendChild(delButton);
+
+        pickedColorsDiv.appendChild(colorDiv);
+    }
+</script>
+</body>
+</html>
