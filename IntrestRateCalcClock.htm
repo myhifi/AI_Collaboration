@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interest Rate Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        .container {
+            margin-top: 50px;
+            width: 50%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-group div {
+            display: flex;
+            gap: 10px;
+        }
+        .form-group div input {
+            flex: 1;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        #interest-rates {
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .result-item {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .delete-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #time-display {
+            font-size: 25px;
+            text-align: center;
+            color: darkblue;
+        }
+    </style>
+</head>
+<body>
+    <div id="time-display" class="container"></div>
+    <div class="container">
+        <form id="interest-form">
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="text" id="amount">
+                <label for="monthly-interest">Monthly Interest</label>
+                <input type="text" id="monthly-interest">
+            </div>
+            <div id="interest-rates" class="form-group">
+                <label>Interest Rates</label>
+                <div>
+                    <input type="text" class="interest-rate" placeholder="Interest Rate 1">
+                </div>
+                <div>
+                    <input type="text" class="interest-rate" placeholder="Interest Rate 2">
+                </div>
+                <div>
+                    <input type="text" class="interest-rate" placeholder="Interest Rate 3">
+                </div>
+            </div>
+            <button type="button" id="add-rate">Add Interest Rate</button>
+            <button type="button" id="remove-rate">Remove Interest Rate</button>
+            <button type="button" id="calculate-amount" disabled>Calculate for Amount</button>
+            <button type="button" id="calculate-monthly-interest" disabled>Calculate for Monthly Interest</button>
+        </form>
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+    function updateTime() {
+    const timeDisplay = document.getElementById('time-display');
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const time = now.toLocaleTimeString();
+    timeDisplay.innerHTML = `${now.toLocaleDateString('en-US', options)}<br>${time}`;
+}
+
+setInterval(updateTime, 1000);
+updateTime();
+
+const amountInput = document.getElementById('amount');
+const monthlyInterestInput = document.getElementById('monthly-interest');
+const interestRatesContainer = document.getElementById('interest-rates');
+const calculateAmountButton = document.getElementById('calculate-amount');
+const calculateMonthlyInterestButton = document.getElementById('calculate-monthly-interest');
+const resultsDiv = document.getElementById('results');
+const addRateButton = document.getElementById('add-rate');
+const removeRateButton = document.getElementById('remove-rate');
+
+function validateInputs() {
+    const amount = amountInput.value.trim();
+    const monthlyInterest = monthlyInterestInput.value.trim();
+    const interestRates = Array.from(document.getElementsByClassName('interest-rate'))
+        .map(input => input.value.trim())
+        .filter(value => value !== '');
+
+    calculateAmountButton.disabled = !(amount && interestRates.length);
+    calculateMonthlyInterestButton.disabled = !(monthlyInterest && interestRates.length);
+}
+
+amountInput.addEventListener('input', validateInputs);
+monthlyInterestInput.addEventListener('input', validateInputs);
+interestRatesContainer.addEventListener('input', validateInputs);
+
+function isNumeric(value) {
+    return !isNaN(value) && value.trim() !== '';
+}
+
+function calculateInterest() {
+    const amount = parseFloat(amountInput.value);
+    const interestRates = Array.from(document.getElementsByClassName('interest-rate'))
+        .map(input => parseFloat(input.value))
+        .filter(value => !isNaN(value));
+    const results = interestRates.map(rate => {
+        const yearlyInterest = amount * (rate / 100);
+        const monthlyInterest = yearlyInterest / 12;
+        return {
+            rate,
+            yearlyInterest,
+            monthlyInterest
+        };
+    });
+    displayResults(results, `<br>Calculations for ${amount} Amount:`);
+}
+
+function calculateAmountForMonthlyInterest() {
+    const monthlyInterest = parseFloat(monthlyInterestInput.value);
+    const interestRates = Array.from(document.getElementsByClassName('interest-rate'))
+        .map(input => parseFloat(input.value))
+        .filter(value => !isNaN(value));
+    const results = interestRates.map(rate => {
+        const yearlyInterest = monthlyInterest * 12;
+        const amount = yearlyInterest / (rate / 100);
+        return {
+            rate,
+            yearlyInterest,
+            amount
+        };
+    });
+    displayResults(results, `<br>Calculations for ${monthlyInterest} Monthly Interest:`);
+}
+
+function displayResults(results, title) {
+    const resultItem = document.createElement('div');
+    resultItem.className = 'result-item';
+    resultItem.innerHTML = `
+        <hr><div class="title">${title}</div>
+        
+        <button class="copy-button">Copy</button> 
+        <button class="delete-button">Delete</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Interest Rate (%)</th>
+                    <th>Yearly Interest</th>
+                    <th>Monthly Income</th>
+                    <th>Required Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${results.map(result => `
+                    <tr>
+                        <td>${result.rate}</td>
+                        <td>${result.yearlyInterest ? result.yearlyInterest.toFixed(2) : ''}</td>
+                        <td>${result.monthlyInterest ? result.monthlyInterest.toFixed(2) : ''}</td>
+                        <td>${result.amount ? result.amount.toFixed(2) : ''}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    resultItem.querySelector('.delete-button').addEventListener('click', () => {
+        resultsDiv.removeChild(resultItem);
+    });
+    resultItem.querySelector('.copy-button').addEventListener('click', () => {
+        copyToClipboard(resultItem);
+    });
+    resultsDiv.appendChild(resultItem);
+}
+
+function copyToClipboard(element) {
+    const range = document.createRange();
+    range.selectNode(element);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    try {
+        document.execCommand('copy');
+        alert('Results copied to clipboard!');
+    } catch (err) {
+        console.error('Failed to copy: ', err);
+    }
+    window.getSelection().removeAllRanges();
+}
+
+calculateAmountButton.addEventListener('click', calculateInterest);
+calculateMonthlyInterestButton.addEventListener('click', calculateAmountForMonthlyInterest);
+
+addRateButton.addEventListener('click', () => {
+    const rateInput = document.createElement('input');
+    rateInput.type = 'text';
+    rateInput.className = 'interest-rate';
+    rateInput.placeholder = `Interest Rate ${document.getElementsByClassName('interest-rate').length + 1}`;
+    interestRatesContainer.appendChild(rateInput);
+    validateInputs();
+});
+
+removeRateButton.addEventListener('click', () => {
+    const rateInputs = document.getElementsByClassName('interest-rate');
+    if (rateInputs.length > 1) {
+        interestRatesContainer.removeChild(rateInputs[rateInputs.length - 1]);
+        validateInputs();
+    }
+});
+
+    </script>
+    </body>
+    </html>
