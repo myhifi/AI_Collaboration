@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Base Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e7f3e7;
+            border: 1px solid #d4edda;
+            border-radius: 4px;
+            color: #155724;
+        }
+        .error {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Number Base Converter</h2>
+    <input type="text" id="numberInput" placeholder="Enter number" />
+    <select id="fromBase">
+        <option value="2">Binary (Base 2)</option>
+        <option value="8">Octal (Base 8)</option>
+        <option value="10">Decimal (Base 10)</option>
+        <option value="16">Hexadecimal (Base 16)</option>
+    </select>
+    <button onclick="convertNumber()">Convert</button>
+    <div id="resultContainer"></div>
+</div>
+
+<script>
+    function convertNumber() {
+        const numberInput = document.getElementById("numberInput").value.trim();
+        const fromBase = parseInt(document.getElementById("fromBase").value);
+        const resultContainer = document.getElementById("resultContainer");
+
+        try {
+            // Validate and convert the number
+            const decimalNumber = parseInt(numberInput, fromBase);
+            if (isNaN(decimalNumber)) {
+                throw new Error("Invalid number or base");
+            }
+
+            // Convert to all other bases
+            const binary = decimalNumber.toString(2);
+            const octal = decimalNumber.toString(8);
+            const decimal = decimalNumber.toString(10);
+            const hexadecimal = decimalNumber.toString(16).toUpperCase();
+
+            // Display the results
+            resultContainer.innerHTML = `
+                <div class="result">Binary (Base 2): ${binary}</div>
+                <div class="result">Octal (Base 8): ${octal}</div>
+                <div class="result">Decimal (Base 10): ${decimal}</div>
+                <div class="result">Hexadecimal (Base 16): ${hexadecimal}</div>
+            `;
+        } catch (error) {
+            resultContainer.innerHTML = `<div class="error">${error.message}</div>`;
+        }
+    }
+</script>
+
+</body>
+</html>
