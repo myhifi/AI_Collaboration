@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interest Calculator</title>
+    <style>
+    body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 50px;
+}
+
+.container {
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#results {
+    margin-top: 20px;
+}
+
+.time-container {
+            font-size: 30px;
+            text-align: center;
+            margin-top: 50px;
+            color: darkblue;
+        }
+    </style>
+</head>
+<body>
+<div class="time-container" id="currentTime"></div>
+    <div class="container">
+        <h1>Interest Calculator</h1>
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" placeholder="Enter amount">
+        <label for="interest01">Interest 1:</label>
+        <input type="number" id="interest01" placeholder="Enter interest rate">
+        <label for="interest02">Interest 2:</label>
+        <input type="number" id="interest02" placeholder="Enter interest rate">
+        <label for="interest03">Interest 3:</label>
+        <input type="number" id="interest03" placeholder="Enter interest rate">
+        <button id="calculate" disabled>Calculate</button>
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        function updateTime() {
+            const date = new Date();
+            const hours = date.getHours().toString().padStart(2, '0'); // Add leading zero if needed
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const seconds = date.getSeconds().toString().padStart(2, '0');
+            const day = date.toLocaleString('en', { weekday: 'short' }); // Get abbreviated day name
+            const dayOfMonth = date.getDate().toString().padStart(2, '0'); // Get day of the month
+            const month = date.toLocaleString('en', { month: 'short' }); // Get abbreviated month name
+            const currentTime = `${day} ${dayOfMonth} ${month}<br>${hours}:${minutes}:${seconds}`;
+            document.getElementById("currentTime").innerHTML = currentTime;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000); // Update time every second
+    </script>
+    <script>
+    const amountInput = document.getElementById('amount');
+const interestInputs = document.querySelectorAll('input[id^="interest"]');
+const calculateButton = document.getElementById('calculate');
+const resultsDiv = document.getElementById('results');
+
+function enableButton() {
+    calculateButton.disabled = !(amountInput.value && [...interestInputs].some(input => input.value));
+}
+
+amountInput.addEventListener('input', enableButton);
+interestInputs.forEach(input => input.addEventListener('input', enableButton));
+
+calculateButton.addEventListener('click', () => {
+    const amount = parseFloat(amountInput.value);
+    const interestRates = [...interestInputs]
+        .filter(input => input.value)
+        .map(input => parseFloat(input.value) / 100);
+
+    resultsDiv.innerHTML = '';
+
+    interestRates.forEach(interestRate => {
+        const yearlyInterest = amount * interestRate;
+        const monthlyInterest = yearlyInterest / 12;
+
+        const result = `Interest Rate: ${interestRate * 100}%<br>
+                        Yearly Interest: ${yearlyInterest.toFixed(2)}<br>
+                        Monthly Interest: ${monthlyInterest.toFixed(2)}<br><br>`;
+        resultsDiv.innerHTML += result;
+    });
+});
+
+    </script>
+</body>
+</html>
