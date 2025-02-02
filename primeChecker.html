@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prime Number Checker</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h2 { color: red; }
+        p { color: blue; }
+        #divideButton { display: none; } /* Initially hide the button */
+    </style>
+</head>
+<body>
+<h2>Prime Number Checker</h2>
+<p>Enter a number to check if it's prime:</p>
+
+<input type="number" id="userInput" placeholder="Enter a number">
+<button onclick="checkPrime()">Check</button>
+<button id="divideButton" onclick="divideNumbers()">Show Divisions</button>
+
+<p id="result"></p>
+<p id="divisionResult"></p>
+<p id="primeBeforeAfter"></p>
+
+<script>
+function isPrime(num) {
+    if (num <= 1) return false;
+    if (num === 2) return true; // 2 is a prime number
+    if (num % 2 === 0) return false; // eliminate even numbers
+    for (let i = 3; i <= Math.sqrt(num); i += 2) {
+        if (num % i === 0) return false;
+    }
+    return true;
+}
+
+function getDivisors(num) {
+    let divisors = [];
+    for (let i = 1; i <= num; i++) {
+        if (num % i === 0) {
+            divisors.push(i);
+        }
+    }
+    return divisors;
+}
+
+function findPreviousPrime(num) {
+    if (num <= 2) return "None"; // No prime number before 2
+    let prevPrime = num - 1;
+    while (prevPrime > 2 && !isPrime(prevPrime)) {
+        prevPrime--;
+    }
+    return prevPrime;
+}
+
+function findNextPrime(num) {
+    let nextPrime = num + 1;
+    while (!isPrime(nextPrime)) {
+        nextPrime++;
+    }
+    return nextPrime;
+}
+
+function checkPrime() {
+    const userInput = parseInt(document.getElementById('userInput').value);
+    const result = document.getElementById('result');
+    const divideButton = document.getElementById('divideButton');
+    const divisionResult = document.getElementById('divisionResult');
+    const primeBeforeAfter = document.getElementById('primeBeforeAfter');
+
+    divisionResult.innerHTML = ''; // Clear previous division results
+    primeBeforeAfter.innerHTML = ''; // Clear previous prime before/after results
+
+    if (isNaN(userInput)) {
+        result.innerHTML = "Please enter a valid number.";
+        divideButton.style.display = 'none'; // Hide the button
+        return;
+    }
+
+    const prevPrime = findPreviousPrime(userInput);
+    const nextPrime = findNextPrime(userInput);
+    primeBeforeAfter.innerHTML = `Prime before ${userInput}: ${prevPrime}<br>Prime after ${userInput}: ${nextPrime}`;
+
+    if (isPrime(userInput)) {
+        result.innerHTML = `${userInput} is a prime number.`;
+        divideButton.style.display = 'none'; // Hide the button
+    } else {
+        const divisors = getDivisors(userInput);
+        result.innerHTML = `${userInput} is not a prime number. It can be divided by: ${divisors.join(', ')}.`;
+        divideButton.style.display = 'inline'; // Show the button
+    }
+}
+
+function divideNumbers() {
+    const userInput = parseInt(document.getElementById('userInput').value);
+    const divisors = getDivisors(userInput).filter(d => d !== 1 && d !== userInput);
+    const divisionResult = document.getElementById('divisionResult');
+
+    let divisionStrings = divisors.map(divisor => `${userInput} / ${divisor} = ${userInput / divisor}`);
+    divisionResult.innerHTML = divisionStrings.join('<br>');
+}
+</script>
+</body>
+</html>
