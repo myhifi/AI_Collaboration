@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rock, Paper, Scissors</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 40px;
+      color: blue;
+      margin-bottom: 20px;
+    }
+
+    .rps-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .rps-button {
+      background-color: #ccc;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .result {
+      text-align: center;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+
+    #counters {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Rock, Paper, Scissors</h1>
+
+  <div class="rps-buttons">
+    <button class="rps-button" id="rock">Rock</button>
+    <button class="rps-button" id="paper">Paper</button>
+    <button class="rps-button" id="scissors">Scissors</button>
+  </div>
+
+  <div id="result" class="result"></div>
+
+  <div id="counters"></div>
+
+  <script>
+    const choices = ['Rock', 'Paper', 'Scissors'];
+    const playerChoiceButtons = document.querySelectorAll('.rps-button');
+    const resultElement = document.getElementById('result');
+    let playerWins = 0;
+    let computerWins = 0;
+    let ties = 0;
+
+    playerChoiceButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const playerChoice = button.textContent;
+        const computerChoice = choices[Math.floor(Math.random() * 3)];
+
+        const outcome = playRound(playerChoice, computerChoice);
+        resultElement.textContent = outcome;
+
+        updateCounters(outcome);
+        displayCounters();
+      });
+    });
+
+    function playRound(playerChoice, computerChoice) {
+      if (playerChoice === computerChoice) {
+        ties++;
+        return `It's a tie! Both chose ${playerChoice}`;
+      } else if ((playerChoice === 'Rock' && computerChoice === 'Scissors') ||
+                 (playerChoice === 'Paper' && computerChoice === 'Rock') ||
+                 (playerChoice === 'Scissors' && computerChoice === 'Paper')) {
+        playerWins++;
+        return `You win! ${playerChoice} beats ${computerChoice}`;
+      } else {
+        computerWins++;
+        return `You lose! ${computerChoice} beats ${playerChoice}`;
+      }
+    }
+
+    function updateCounters(outcome) {
+      if (outcome.startsWith('You win')) {
+        playerWins++;
+      } else if (outcome.startsWith('You lose')) {
+        computerWins++;
+      } else {
+        ties++;
+      }
+    }
+
+    function displayCounters() {
+      const countersElement = document.getElementById('counters');
+      countersElement.innerHTML = `
+    <p>Player Wins: ${playerWins}</p>
+    <p>Computer Wins: ${computerWins}</p>
+    <p>Ties: ${ties}</p>
+  `;
+    }
+  </script>
+</body>
+</html>
