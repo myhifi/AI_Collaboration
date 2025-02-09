@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Search Engine</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center horizontally */
+            margin: 20px;
+        }
+
+        #search-container {
+            display: flex;
+            flex-direction: column;  /* Stack input and buttons */
+            width: 90%; /* Or whatever width you prefer */
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .search-button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            background-color: #4CAF50; /* Example color */
+            color: white;
+            cursor: pointer;
+        }
+        .search-button:hover{
+            background-color: #45a049;
+        }
+        #buttons-container{
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap */
+            justify-content: center; /* Center buttons horizontally */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Enter your search query" required>
+        <div id="buttons-container">
+            <button class="search-button" onclick="search('google')">Search Google</button>
+            <button class="search-button" onclick="search('bing')">Search Bing</button>
+            <button class="search-button" onclick="search('duckduckgo')">Search DuckDuckGo</button>
+            <button class="search-button" onclick="search('yahoo')">Search Yahoo</button>
+            <button class="search-button" onclick="search('yandex')">Search Yandex</button>
+            <button class="search-button" onclick="search('ecosia')">Search Ecosia</button>
+            <button class="search-button" onclick="search('youtube')">Search YouTube</button>
+            <button class="search-button" onclick="search('vimeo')">Search Vimeo</button>
+            <button class="search-button" onclick="search('dailymotion')">Search Dailymotion</button>
+            <button class="search-button" onclick="search('baidu')">Search Baidu</button>
+        </div>
+    </div>
+
+
+    <script>
+        function search(engine) {
+            const query = document.getElementById('search-input').value;
+            let url;
+            let params = {}; // Store query parameters
+
+            switch (engine) {
+                case 'google':
+                    url = "https://www.google.com/search";
+                    params.q = query;
+                    break;
+                case 'bing':
+                    url = "https://www.bing.com/search";
+                    params.q = query;
+                    break;
+                case 'duckduckgo':
+                    url = "https://duckduckgo.com/";
+                    params.q = query;
+                    break;
+                case 'yahoo':
+                    url = "https://search.yahoo.com/search";
+                    params.p = query; // Correct parameter for Yahoo
+                    break;
+                case 'yandex':
+                    url = "https://yandex.com/search/";
+                    params.text = query; // Correct parameter for Yandex
+                    break;
+                case 'ecosia':
+                    url = "https://www.ecosia.org/search";
+                    params.q = query;
+                    break;
+                case 'youtube':
+                    url = "https://www.youtube.com/results";
+                    params.search_query = query;
+                    break;
+                case 'vimeo':
+                    url = "https://vimeo.com/search";
+                    params.q = query;
+                    break;
+                case 'dailymotion':
+    const encodedQuery = encodeURIComponent(query);
+    url = `https://www.dailymotion.com/search/${encodedQuery}/videos`;
+    break;
+                case 'baidu':
+                    url = "https://www.baidu.com/s";
+                    params.wd = query;  // Correct parameter for Baidu
+                    break;
+            }
+
+             // Build the URL with parameters
+            let fullUrl = url;
+            if (Object.keys(params).length > 0) {
+                fullUrl += "?" + new URLSearchParams(params).toString();
+            }
+
+            window.open(fullUrl, '_blank');
+        }
+    </script>
+
+</body>
+</html>
