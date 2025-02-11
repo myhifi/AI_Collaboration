@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Multi-Search Engine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        #search-container {
+            display: flex;
+            flex-direction: column;
+            width: 90%;
+            max-width: 600px;
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .search-button {
+            padding: 12px 20px;
+            margin: 5px;
+            border: none;
+            background-color: #4CAF50; /* Green background */
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-button:hover {
+            background-color: #45a049; /* Slightly darker green on hover */
+        }
+
+        .search-button:disabled {
+            background-color: #ccc; /* Light grey when disabled */
+            cursor: not-allowed;
+        }
+
+        #buttons-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .result-container {
+            width: 100%;
+            max-width: 600px;
+            height: 500px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .checkbox-group {
+            margin-bottom: 15px;
+        }
+
+        /* Custom colors for different buttons */
+        #check-all-engines {
+            background-color: #4CAF50; /* Green */
+        }
+
+        #check-general-engines {
+            background-color: #2196F3; /* Blue */
+        }
+
+        #check-video-engines {
+            background-color: #FF5722; /* Orange */
+        }
+
+        #uncheck-all {
+            background-color: #f44336; /* Red */
+        }
+
+    </style>
+</head>
+<body>
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Enter your search query" required>
+        
+        <div class="checkbox-group">
+            <h3>Select Search Engines:</h3>
+            <label><input type="checkbox" class="engine-checkbox" checked> Google</label><br>
+            <label><input type="checkbox" class="engine-checkbox" checked> Bing</label><br>
+            <label><input type="checkbox" class="engine-checkbox" checked> DuckDuckGo</label><br>
+            <label><input type="checkbox" class="engine-checkbox" checked> Yahoo</label><br>
+            <label><input type="checkbox" class="engine-checkbox" checked> Yandex</label><br>
+            <label><input type="checkbox" class="engine-checkbox" checked> Ecosia</label><br>
+            <label><input type="checkbox" class="engine-checkbox" checked> Baidu</label><br>
+            <label><input type="checkbox" class="engine-checkbox" checked> YouTube (Video)</label><br>
+            <label><input type="checkbox" class="engine-checkbox" checked> Vimeo (Video)</label><br>
+            <label><input type="checkbox" class="engine-checkbox" checked> Dailymotion (Video)</label><br>
+        </div>
+        
+        <div id="buttons-container">
+            <button class="search-button" id="search-button" onclick="search()" disabled>Search</button>
+            <button class="search-button" id="check-all-engines" onclick="checkAll()">Check All Engines</button>
+            <button class="search-button" id="check-general-engines" onclick="checkGeneralEngines()">Check All General Search Engines</button>
+            <button class="search-button" id="check-video-engines" onclick="checkVideoEngines()">Check All Video Engines</button>
+            <button class="search-button" id="uncheck-all" onclick="uncheckAll()">Uncheck All</button>
+        </div>
+
+        <p>Allow pop-ups when choosing more than 1 search engine</p>
+        <!-- Result Display Containers -->
+        <div id="general-results" class="result-container"></div>
+        <div id="video-results" class="result-container"></div>
+    </div>
+
+    <script>
+        // Enable search button if at least one checkbox is selected
+        const checkboxes = document.querySelectorAll('.engine-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', toggleSearchButton);
+        });
+
+        // Initially enable the button if any checkboxes are checked
+        toggleSearchButton();
+
+        function toggleSearchButton() {
+            const isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+            document.getElementById('search-button').disabled = !isChecked;
+        }
+
+        function search() {
+            const query = document.getElementById('search-input').value;
+            const selectedEngines = getSelectedEngines();
+            openResultsInNewTab(selectedEngines.general, query);
+            openResultsInNewTab(selectedEngines.videos, query);
+        }
+
+        function getSelectedEngines() {
+            const generalEngines = [
+                { name: 'Google', url: 'https://www.google.com/search?q=' },
+                { name: 'Bing', url: 'https://www.bing.com/search?q=' },
+                { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
+                { name: 'Yahoo', url: 'https://search.yahoo.com/search?p=' },
+                { name: 'Yandex', url: 'https://yandex.com/search/?text=' },
+                { name: 'Ecosia', url: 'https://www.ecosia.org/search?q=' },
+                { name: 'Baidu', url: 'https://www.baidu.com/s?wd=' }
+            ];
+
+            const videoEngines = [
+                { name: 'YouTube', url: 'https://www.youtube.com/results?search_query=' },
+                { name: 'Vimeo', url: 'https://vimeo.com/search?q=' },
+                { name: 'Dailymotion', url: 'https://www.dailymotion.com/search/' }
+            ];
+
+            const selectedGeneralEngines = generalEngines.filter((engine, index) => checkboxes[index].checked);
+            const selectedVideoEngines = videoEngines.filter((engine, index) => checkboxes[index + generalEngines.length].checked);
+
+            return { general: selectedGeneralEngines, videos: selectedVideoEngines };
+        }
+
+        function openResultsInNewTab(engines, query) {
+            engines.forEach(engine => {
+                window.open(engine.url + encodeURIComponent(query), '_blank');
+            });
+        }
+
+        // Check all checkboxes
+        function checkAll() {
+            checkboxes.forEach(checkbox => checkbox.checked = true);
+            toggleSearchButton();
+        }
+
+        // Check all general search engine checkboxes
+        function checkGeneralEngines() {
+            checkboxes.forEach((checkbox, index) => {
+                if (index < 7) { // First 7 are general search engines
+                    checkbox.checked = true;
+                }
+            });
+            toggleSearchButton();
+        }
+
+        // Check all video engine checkboxes
+        function checkVideoEngines() {
+            checkboxes.forEach((checkbox, index) => {
+                if (index >= 7) { // Last 3 are video search engines
+                    checkbox.checked = true;
+                }
+            });
+            toggleSearchButton();
+        }
+
+        // Uncheck all checkboxes
+        function uncheckAll() {
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+            toggleSearchButton();
+        }
+    </script>
+</body>
+</html>
