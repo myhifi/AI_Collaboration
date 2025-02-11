@@ -53,6 +53,14 @@
             background-color: #45a049; /* Slightly darker green on hover */
         }
 
+        .search-button.pressed {
+            background-color: #388E3C; /* Darker green for pressed */
+        }
+
+        .search-button.unpressed {
+            background-color: #8BC34A; /* Lighter green for unpressed */
+        }
+
         .search-button:disabled {
             background-color: #ccc; /* Light grey when disabled */
             cursor: not-allowed;
@@ -84,19 +92,7 @@
             margin-bottom: 15px;
         }
 
-        /* Custom colors for different buttons */
-        #check-all-engines {
-            background-color: #4CAF50; /* Green */
-        }
-
-        #check-general-engines {
-            background-color: #2196F3; /* Blue */
-        }
-
-        #check-video-engines {
-            background-color: #FF5722; /* Orange */
-        }
-
+        /* Uncheck All button red color */
         #uncheck-all {
             background-color: #f44336; /* Red */
         }
@@ -123,9 +119,8 @@
         
         <div id="buttons-container">
             <button class="search-button" id="search-button" onclick="search()" disabled>Search</button>
-            <button class="search-button" id="check-all-engines" onclick="checkAll()">Check All Engines</button>
-            <button class="search-button" id="check-general-engines" onclick="checkGeneralEngines()">Check All General Search Engines</button>
-            <button class="search-button" id="check-video-engines" onclick="checkVideoEngines()">Check All Video Engines</button>
+            <button class="search-button pressed" id="check-general-engines" onclick="toggleGeneralEngines()">All General Search Engines</button>
+            <button class="search-button pressed" id="check-video-engines" onclick="toggleVideoEngines()">All Video Engines</button>
             <button class="search-button" id="uncheck-all" onclick="uncheckAll()">Uncheck All</button>
         </div>
 
@@ -147,7 +142,13 @@
 
         function toggleSearchButton() {
             const isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
-            document.getElementById('search-button').disabled = !isChecked;
+            const searchButton = document.getElementById('search-button');
+
+            if (!isChecked) {
+                searchButton.disabled = true;  // Dim the button
+            } else {
+                searchButton.disabled = false; // Enable the button
+            }
         }
 
         function search() {
@@ -186,35 +187,54 @@
             });
         }
 
-        // Check all checkboxes
-        function checkAll() {
-            checkboxes.forEach(checkbox => checkbox.checked = true);
+        // Toggle General Search Engines button
+        function toggleGeneralEngines() {
+            const generalEnginesButton = document.getElementById('check-general-engines');
+            const generalEngineCheckboxes = Array.from(checkboxes).slice(0, 7);
+
+            if (generalEnginesButton.classList.contains('pressed')) {
+                // Uncheck all general engines
+                generalEngineCheckboxes.forEach(checkbox => checkbox.checked = false);
+                generalEnginesButton.classList.remove('pressed');
+                generalEnginesButton.classList.add('unpressed');
+            } else {
+                // Check all general engines
+                generalEngineCheckboxes.forEach(checkbox => checkbox.checked = true);
+                generalEnginesButton.classList.remove('unpressed');
+                generalEnginesButton.classList.add('pressed');
+            }
+
             toggleSearchButton();
         }
 
-        // Check all general search engine checkboxes
-        function checkGeneralEngines() {
-            checkboxes.forEach((checkbox, index) => {
-                if (index < 7) { // First 7 are general search engines
-                    checkbox.checked = true;
-                }
-            });
+        // Toggle Video Engines button
+        function toggleVideoEngines() {
+            const videoEnginesButton = document.getElementById('check-video-engines');
+            const videoEngineCheckboxes = Array.from(checkboxes).slice(7);
+
+            if (videoEnginesButton.classList.contains('pressed')) {
+                // Uncheck all video engines
+                videoEngineCheckboxes.forEach(checkbox => checkbox.checked = false);
+                videoEnginesButton.classList.remove('pressed');
+                videoEnginesButton.classList.add('unpressed');
+            } else {
+                // Check all video engines
+                videoEngineCheckboxes.forEach(checkbox => checkbox.checked = true);
+                videoEnginesButton.classList.remove('unpressed');
+                videoEnginesButton.classList.add('pressed');
+            }
+
             toggleSearchButton();
         }
 
-        // Check all video engine checkboxes
-        function checkVideoEngines() {
-            checkboxes.forEach((checkbox, index) => {
-                if (index >= 7) { // Last 3 are video search engines
-                    checkbox.checked = true;
-                }
-            });
-            toggleSearchButton();
-        }
-
-        // Uncheck all checkboxes
+        // Uncheck all checkboxes and make buttons un-pressed
         function uncheckAll() {
             checkboxes.forEach(checkbox => checkbox.checked = false);
+            // Make All General and Video engines buttons un-pressed
+            document.getElementById('check-general-engines').classList.remove('pressed');
+            document.getElementById('check-general-engines').classList.add('unpressed');
+            document.getElementById('check-video-engines').classList.remove('pressed');
+            document.getElementById('check-video-engines').classList.add('unpressed');
             toggleSearchButton();
         }
     </script>
