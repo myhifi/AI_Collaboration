@@ -14,7 +14,7 @@
             padding: 0;
             background-color: #f4f4f4;
         }
-
+        
         #search-container {
             display: flex;
             flex-direction: column;
@@ -26,7 +26,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
+        
         #search-input {
             width: 100%;
             padding: 15px;
@@ -36,67 +36,43 @@
             box-sizing: border-box;
             font-size: 16px;
         }
-
+        
         .search-button {
             padding: 12px 20px;
             margin: 5px;
             border: none;
-            background-color: #4CAF50; /* Green background */
+            background-color: #4CAF50;
             color: white;
             font-size: 14px;
             cursor: pointer;
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
-
+        
         .search-button:hover {
-            background-color: #45a049; /* Slightly darker green on hover */
+            background-color: #45a049;
         }
-
-        .search-button.pressed {
-            background-color: #388E3C; /* Darker green for pressed */
+        
+        .search-button[aria-pressed="true"] {
+            background-color: #388E3C;
         }
-
-        .search-button.unpressed {
-            background-color: #8BC34A; /* Lighter green for unpressed */
+        
+        .search-button[aria-pressed="false"] {
+            background-color: #8BC34A;
         }
-
+        
         .search-button:disabled {
-            background-color: #ccc; /* Light grey when disabled */
+            background-color: #ccc;
             cursor: not-allowed;
         }
-
-        #buttons-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 20px;
+        
+        .uncheck {
+            background-color: #f44336;
         }
-
-        .result-container {
-            width: 100%;
-            max-width: 600px;
-            height: 500px;
-            margin-top: 20px;
-            display: none;
+        
+        .uncheck:hover {
+            background-color: #d32f2f;
         }
-
-        .result-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .checkbox-group {
-            margin-bottom: 15px;
-        }
-
-        /* Uncheck All button red color */
-        #uncheck-all {
-            background-color: #f44336; /* Red */
-        }
-
     </style>
 </head>
 <body>
@@ -105,138 +81,91 @@
         
         <div class="checkbox-group">
             <h3>Select Search Engines:</h3>
-            <label><input type="checkbox" class="engine-checkbox" checked> Google</label><br>
-            <label><input type="checkbox" class="engine-checkbox" checked> Bing</label><br>
-            <label><input type="checkbox" class="engine-checkbox" checked> DuckDuckGo</label><br>
-            <label><input type="checkbox" class="engine-checkbox" checked> Yahoo</label><br>
-            <label><input type="checkbox" class="engine-checkbox" checked> Yandex</label><br>
-            <label><input type="checkbox" class="engine-checkbox" checked> Ecosia</label><br>
-            <label><input type="checkbox" class="engine-checkbox" checked> Baidu</label><br>
-            <label><input type="checkbox" class="engine-checkbox" checked> YouTube (Video)</label><br>
-            <label><input type="checkbox" class="engine-checkbox" checked> Vimeo (Video)</label><br>
-            <label><input type="checkbox" class="engine-checkbox" checked> Dailymotion (Video)</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="google" data-category="general" checked> Google</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="bing" data-category="general" checked> Bing</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="duckduckgo" data-category="general" checked> DuckDuckGo</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="yahoo" data-category="general" checked> Yahoo</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="yandex" data-category="general" checked> Yandex</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="ecosia" data-category="general" checked> Ecosia</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="baidu" data-category="general" checked> Baidu</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="youtube" data-category="video" checked> YouTube (Video)</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="vimeo" data-category="video" checked> Vimeo (Video)</label><br>
+            <label><input type="checkbox" class="engine-checkbox" data-engine="dailymotion" data-category="video" checked> Dailymotion (Video)</label><br>
         </div>
         
         <div id="buttons-container">
-            <button class="search-button" id="search-button" onclick="search()" disabled>Search</button>
-            <button class="search-button pressed" id="check-general-engines" onclick="toggleGeneralEngines()">All General Search Engines</button>
-            <button class="search-button pressed" id="check-video-engines" onclick="toggleVideoEngines()">All Video Engines</button>
-            <button class="search-button" id="uncheck-all" onclick="uncheckAll()">Uncheck All</button>
+            <button class="search-button" id="search-button" disabled>Search</button>
+            <button class="search-button" id="check-general-engines" aria-pressed="true">All General Search Engines</button>
+            <button class="search-button" id="check-video-engines" aria-pressed="true">All Video Engines</button>
+            <button class="search-button uncheck" id="uncheck-all">Uncheck All</button>
         </div>
 
         <p>Allow pop-ups when choosing more than 1 search engine</p>
-        <!-- Result Display Containers -->
-        <div id="general-results" class="result-container"></div>
-        <div id="video-results" class="result-container"></div>
     </div>
 
     <script>
-        // Enable search button if at least one checkbox is selected
-        const checkboxes = document.querySelectorAll('.engine-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', toggleSearchButton);
-        });
+        const searchButton = document.getElementById('search-button');
+        const checkboxGroup = document.querySelector('.checkbox-group');
+        const generalButton = document.getElementById('check-general-engines');
+        const videoButton = document.getElementById('check-video-engines');
 
-        // Initially enable the button if any checkboxes are checked
-        toggleSearchButton();
+        const engines = {
+            google: "https://www.google.com/search?q=",
+            bing: "https://www.bing.com/search?q=",
+            duckduckgo: "https://duckduckgo.com/?q=",
+            yahoo: "https://search.yahoo.com/search?p=",
+            yandex: "https://yandex.com/search/?text=",
+            ecosia: "https://www.ecosia.org/search?q=",
+            baidu: "https://www.baidu.com/s?wd=",
+            youtube: "https://www.youtube.com/results?search_query=",
+            vimeo: "https://vimeo.com/search?q=",
+            dailymotion: "https://www.dailymotion.com/search/"
+        };
 
         function toggleSearchButton() {
-            const isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
-            const searchButton = document.getElementById('search-button');
-
-            if (!isChecked) {
-                searchButton.disabled = true;  // Dim the button
-            } else {
-                searchButton.disabled = false; // Enable the button
-            }
+            searchButton.disabled = !document.querySelector('.engine-checkbox:checked');
         }
+
+        checkboxGroup.addEventListener('change', toggleSearchButton);
 
         function search() {
             const query = document.getElementById('search-input').value;
-            const selectedEngines = getSelectedEngines();
-            openResultsInNewTab(selectedEngines.general, query);
-            openResultsInNewTab(selectedEngines.videos, query);
-        }
-
-        function getSelectedEngines() {
-            const generalEngines = [
-                { name: 'Google', url: 'https://www.google.com/search?q=' },
-                { name: 'Bing', url: 'https://www.bing.com/search?q=' },
-                { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
-                { name: 'Yahoo', url: 'https://search.yahoo.com/search?p=' },
-                { name: 'Yandex', url: 'https://yandex.com/search/?text=' },
-                { name: 'Ecosia', url: 'https://www.ecosia.org/search?q=' },
-                { name: 'Baidu', url: 'https://www.baidu.com/s?wd=' }
-            ];
-
-            const videoEngines = [
-                { name: 'YouTube', url: 'https://www.youtube.com/results?search_query=' },
-                { name: 'Vimeo', url: 'https://vimeo.com/search?q=' },
-                { name: 'Dailymotion', url: 'https://www.dailymotion.com/search/' }
-            ];
-
-            const selectedGeneralEngines = generalEngines.filter((engine, index) => checkboxes[index].checked);
-            const selectedVideoEngines = videoEngines.filter((engine, index) => checkboxes[index + generalEngines.length].checked);
-
-            return { general: selectedGeneralEngines, videos: selectedVideoEngines };
-        }
-
-        function openResultsInNewTab(engines, query) {
-            engines.forEach(engine => {
-                window.open(engine.url + encodeURIComponent(query), '_blank');
+            document.querySelectorAll('.engine-checkbox:checked').forEach(checkbox => {
+                window.open(engines[checkbox.dataset.engine] + encodeURIComponent(query), '_blank');
             });
         }
 
-        // Toggle General Search Engines button
-        function toggleGeneralEngines() {
-            const generalEnginesButton = document.getElementById('check-general-engines');
-            const generalEngineCheckboxes = Array.from(checkboxes).slice(0, 7);
+        searchButton.addEventListener('click', search);
 
-            if (generalEnginesButton.classList.contains('pressed')) {
-                // Uncheck all general engines
-                generalEngineCheckboxes.forEach(checkbox => checkbox.checked = false);
-                generalEnginesButton.classList.remove('pressed');
-                generalEnginesButton.classList.add('unpressed');
-            } else {
-                // Check all general engines
-                generalEngineCheckboxes.forEach(checkbox => checkbox.checked = true);
-                generalEnginesButton.classList.remove('unpressed');
-                generalEnginesButton.classList.add('pressed');
+        function toggleEngines(category) {
+            const button = category === "general" ? generalButton : videoButton;
+            const isPressed = button.getAttribute("aria-pressed") === "true";
+            const checkboxes = document.querySelectorAll(`.engine-checkbox[data-category="${category}"]`);
+
+            checkboxes.forEach(checkbox => checkbox.checked = !isPressed);
+            button.setAttribute("aria-pressed", !isPressed);
+            toggleSearchButton();
+        }
+
+        generalButton.addEventListener("click", () => toggleEngines("general"));
+        videoButton.addEventListener("click", () => toggleEngines("video"));
+
+        document.getElementById("uncheck-all").addEventListener("click", () => {
+            document.querySelectorAll('.engine-checkbox').forEach(checkbox => checkbox.checked = false);
+            generalButton.setAttribute("aria-pressed", "false");
+            videoButton.setAttribute("aria-pressed", "false");
+            toggleSearchButton();
+        });
+
+        const searchInput = document.getElementById("search-input");
+
+        searchInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && searchInput.value.trim() !== "" && !searchButton.disabled) {
+                searchButton.click();
             }
-
-            toggleSearchButton();
-        }
-
-        // Toggle Video Engines button
-        function toggleVideoEngines() {
-            const videoEnginesButton = document.getElementById('check-video-engines');
-            const videoEngineCheckboxes = Array.from(checkboxes).slice(7);
-
-            if (videoEnginesButton.classList.contains('pressed')) {
-                // Uncheck all video engines
-                videoEngineCheckboxes.forEach(checkbox => checkbox.checked = false);
-                videoEnginesButton.classList.remove('pressed');
-                videoEnginesButton.classList.add('unpressed');
-            } else {
-                // Check all video engines
-                videoEngineCheckboxes.forEach(checkbox => checkbox.checked = true);
-                videoEnginesButton.classList.remove('unpressed');
-                videoEnginesButton.classList.add('pressed');
-            }
-
-            toggleSearchButton();
-        }
-
-        // Uncheck all checkboxes and make buttons un-pressed
-        function uncheckAll() {
-            checkboxes.forEach(checkbox => checkbox.checked = false);
-            // Make All General and Video engines buttons un-pressed
-            document.getElementById('check-general-engines').classList.remove('pressed');
-            document.getElementById('check-general-engines').classList.add('unpressed');
-            document.getElementById('check-video-engines').classList.remove('pressed');
-            document.getElementById('check-video-engines').classList.add('unpressed');
-            toggleSearchButton();
-        }
+        });
+        // Ensure search button is enabled on page load
+        toggleSearchButton();
     </script>
 </body>
 </html>
