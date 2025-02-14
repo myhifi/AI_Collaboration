@@ -57,6 +57,9 @@ td:hover {
 .actions button {
   margin-right: 5px;
 }
+th:nth-child(4), td:nth-child(4) {
+  width: 7%;
+}
   </style>
 </head>
 <body>
@@ -66,6 +69,7 @@ td:hover {
         <th>Title</th>
         <th>Link</th>
         <th>Actions</th>
+        <th>Date Added</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -108,7 +112,8 @@ td:hover {
         return;
       }
 
-      savedLinks.push({ title, url });
+      const currentDate = new Date().toLocaleDateString('en-GB'); // Get current date in dd/mm/yyyy format
+      savedLinks.push({ title, url, dateAdded: currentDate });
       saveToLocalStorage();
       renderTable();
 
@@ -121,11 +126,13 @@ td:hover {
       savedLinks.forEach((link, index) => {
         const row = document.createElement('tr');
 
+        // Title Column
         const titleCell = document.createElement('td');
         titleCell.textContent = link.title;
         titleCell.contentEditable = false;
         row.appendChild(titleCell);
 
+        // Link Column
         const linkCell = document.createElement('td');
         const linkAnchor = document.createElement('a');
         linkAnchor.href = link.url;
@@ -134,6 +141,7 @@ td:hover {
         linkCell.appendChild(linkAnchor);
         row.appendChild(linkCell);
 
+        // Actions Column
         const actionsCell = document.createElement('td');
         actionsCell.classList.add('actions');
 
@@ -164,6 +172,12 @@ td:hover {
         actionsCell.appendChild(downBtn);
 
         row.appendChild(actionsCell);
+
+        // Date Added Column
+          const dateCell = document.createElement('td');
+          dateCell.textContent = link.dateAdded || 'N/A'; // Default to 'N/A' for older saved entries
+          row.appendChild(dateCell);
+        
         tableBody.appendChild(row);
       });
     }
