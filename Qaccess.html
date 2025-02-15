@@ -81,8 +81,9 @@ th:nth-child(4), td:nth-child(4) {
     <input id="url" type="url" placeholder="Website Link (URL)" autofocus required>
     <button id="addBtn">Add Tab</button>
   </div>
+  <button id="saveToFileBtn">Save to File</button>
   
-<script>
+  <script>
     const titleInput = document.getElementById('title');
     const urlInput = document.getElementById('url');
     const addBtn = document.getElementById('addBtn');
@@ -97,7 +98,24 @@ th:nth-child(4), td:nth-child(4) {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') addNewLink();
     });
-  
+
+    //Add table contents to JSON file
+    const saveToFileBtn = document.getElementById('saveToFileBtn');
+    saveToFileBtn.addEventListener('click', saveToFile);
+
+    function saveToFile() {
+      const dataStr = JSON.stringify(savedLinks, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'links.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
     function addNewLink() {
       const title = titleInput.value.trim() || urlInput.value.trim();
       const url = urlInput.value.trim();
@@ -226,5 +244,6 @@ th:nth-child(4), td:nth-child(4) {
       localStorage.setItem('links', JSON.stringify(savedLinks));
     }
   </script>
+    
 </body>
 </html>
