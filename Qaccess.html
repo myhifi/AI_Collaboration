@@ -81,13 +81,39 @@ th:nth-child(4), td:nth-child(4) {
     <input id="url" type="url" placeholder="Website Link (URL)" autofocus required>
     <button id="addBtn">Add Tab</button>
   </div>
-  <button id="saveToFileBtn">Save to File</button>
+  <button id="saveToFileBtn">Save to File</button><br>
+  <input type="file" id="jsonFileInput" accept=".json">
+  <button id="loadJsonBtn">Load JSON File</button>
   
   <script>
     const titleInput = document.getElementById('title');
     const urlInput = document.getElementById('url');
     const addBtn = document.getElementById('addBtn');
     const tableBody = document.querySelector('#linkTable tbody');
+    const jsonFileInput = document.getElementById('jsonFileInput');
+    const loadJsonBtn = document.getElementById('loadJsonBtn');
+
+    // Load saved links from JSON file
+    loadJsonBtn.addEventListener('click', loadJsonFromFile);
+
+    function loadJsonFromFile() {
+        const file = jsonFileInput.files[0];
+        if (!file) {
+            alert('Please select a JSON file.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                savedLinks = JSON.parse(e.target.result);
+                renderTable();
+            } catch (error) {
+                alert('Invalid JSON file format.');
+            }
+        };
+        reader.readAsText(file);
+    }
   
     // Load saved links from localStorage
     let savedLinks = JSON.parse(localStorage.getItem('links')) || [];
