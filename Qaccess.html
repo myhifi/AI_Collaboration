@@ -107,6 +107,7 @@ th:nth-child(4), td:nth-child(4) {
         reader.onload = (e) => {
             try {
                 savedLinks = JSON.parse(e.target.result);
+                updateLocalStorage(); // Save it to localStorage
                 renderTable();
             } catch (error) {
                 alert('Invalid JSON file format.');
