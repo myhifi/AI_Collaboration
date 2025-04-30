@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem Solving Tracker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .timer-display {
+            font-size: 3em;
+            text-align: center;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #startStop {
+            background-color: #2ecc71;
+            color: white;
+        }
+        #reset {
+            background-color: #e74c3c;
+            color: white;
+        }
+        #saveResult {
+            background-color: #3498db;
+            color: white;
+        }
+        #clearAll {
+            background-color: #f39c12;
+            color: white;
+        }
+        .task-input {
+            margin-bottom: 20px;
+        }
+        input, select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .status-solved {
+            color: #2ecc71;
+        }
+        .status-stuck {
+            color: #e74c3c;
+        }
+        .delete-btn, .continue-btn {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-right: 5px;
+        }
+        .continue-btn {
+            background-color: #8e44ad;
+        }
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <time id="myClockDisplay" datetime="2022-01-01"></time>
+    <h1>Problem Solving Tracker</h1>
+    <div class="task-input">
+        <label for="taskTitle">Task Title:</label>
+        <input type="text" id="taskTitle" placeholder="Enter task name">
+
+        <label for="timeLimit">Time Limit (minutes):</label>
+        <input type="number" id="timeLimit" min="1" value="30">
+    </div>
+    <div class="timer-display" id="display">00:00:00</div>
+    <div class="controls">
+        <button id="startStop">Start</button>
+        <button id="reset">Reset</button>
+        <button id="saveResult" disabled>Save Result</button>
+    </div>
+    <!-- Custom confirmation modal -->
+    <div id="confirmModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;">
+        <div style="background:white; padding:20px; border-radius:8px; max-width:300px; text-align:center;">
+        <p id="confirmText">Are you sure?</p>
+        <button id="confirmYes" style="background:#e74c3c; color:white; padding:8px 12px; margin-right:10px;">Yes</button>
+        <button id="confirmNo" style="background:#2ecc71; color:white; padding:8px 12px;">Cancel</button>
+        </div>
+    </div>
+  
+    <div>
+        <div class="table-actions">
+            <h3>Task History</h3>
+            <button id="clearAll">Clear All Tasks</button>
+        </div>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Time Spent</th>
+                    <th>Time Remaining</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+        </table>
+    </div>
+</div>
+<script>
+    const display = document.getElementById('display');
+    const startStopBtn = document.getElementById('startStop');
+    const resetBtn = document.getElementById('reset');
+    const saveResultBtn = document.getElementById('saveResult');
+    const clearAllBtn = document.getElementById('clearAll');
+    const taskTitleInput = document.getElementById('taskTitle');
+    const timeLimitInput = document.getElementById('timeLimit');
+    const historyBody = document.getElementById('historyBody');
+    
+    let startTime, elapsedTime = 0, timerInterval, isRunning = false, timeLimit = 0;
+    
+    function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return [hours, minutes, seconds].map(unit => String(unit).padStart(2, '0')).join(':');
+    }
+    
+    function updateDisplay() {
+        display.textContent = formatTime(elapsedTime);
+    }
+    
+    function startTimer() {
+        if (!isRunning) {
+            startTime = Date.now() - elapsedTime;
+            timerInterval = setInterval(() => {
+                elapsedTime = Date.now() - startTime;
+                updateDisplay();
+            }, 1000);
+            isRunning = true;
+            startStopBtn.textContent = 'Pause';
+            saveResultBtn.disabled = true;
+        }
+    }
+    
+    function stopTimer() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        startStopBtn.textContent = 'Start';
+        saveResultBtn.disabled = false;
+    }
+    
+    function resetTimer() {
+        stopTimer();
+        elapsedTime = 0;
+        updateDisplay();
+        saveResultBtn.disabled = true;
+    }
+    
+    function addTaskToHistory(task) {
+        const row = document.createElement('tr');
+        row.dataset.id = task.id;
+    
+        row.innerHTML = `
+            <td>${task.title}</td>
+            <td>${task.timeSpent}</td>
+            <td>${task.timeRemaining}</td>
+            <td>
+                <select>
+                    <option${task.status.includes('Solved') ? ' selected' : ''}>Solved in ${task.timeSpent}</option>
+                    <option${task.status.includes('Stuck') ? ' selected' : ''}>Stuck till ${task.timeSpent}</option>
+                </select>
+            </td>
+            <td>${task.date}</td>
+            <td>
+                <button class="continue-btn" onclick="resumeTask('${task.title.replace(/'/g, "\\'")}', ${task.ms})">Continue</button>
+                <button class="delete-btn" onclick="deleteTask(this)">Delete</button>
+            </td>
+        `;
+        historyBody.appendChild(row);
+    }
+    
+    function resumeTask(title, ms) {
+        taskTitleInput.value = title;
+        elapsedTime = ms;
+        updateDisplay();
+        startTimer();
+    }
+    
+    function saveResult() {
+        if (!taskTitleInput.value.trim()) return alert('Enter a task title.');
+        const ms = elapsedTime;
+        const timeSpent = formatTime(ms);
+        const timeRemaining = timeLimit > 0 ? formatTime(Math.max(0, timeLimit - ms)) : 'No limit';
+        const task = {
+            id: Date.now(), // unique identifier
+            title: taskTitleInput.value.trim(),
+            timeSpent,
+            timeRemaining,
+            ms,
+            status: 'Solved in ' + timeSpent,
+            date: new Date().toLocaleString()
+        };
+        addTaskToHistory(task);
+        saveToLocal(task);
+        resetTimer();
+    }
+    
+    function saveToLocal(task) {
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.push(task);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+    
+    function deleteTask(button) {
+        const row = button.closest('tr');
+        const id = row.dataset.id;
+        row.remove();
+    
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks = tasks.filter(task => task.id != id);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+    
+    function loadTasks() {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.forEach(addTaskToHistory);
+    }
+    
+    startStopBtn.onclick = () => {
+        if (!taskTitleInput.value.trim()) return alert('Enter a task title.');
+        timeLimit = parseInt(timeLimitInput.value) * 60000;
+        isRunning ? stopTimer() : startTimer();
+    };
+    
+    resetBtn.onclick = resetTimer;
+    saveResultBtn.onclick = saveResult;
+
+    function floatConfirm(message) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirmModal');
+            const text = document.getElementById('confirmText');
+            const yesBtn = document.getElementById('confirmYes');
+            const noBtn = document.getElementById('confirmNo');
+
+            // Set the message
+            text.textContent = message;
+
+            // Show modal
+            modal.style.display = 'flex';
+
+            // Define cleanup so we don't keep handlers or leave modal open
+            const cleanup = () => {
+            modal.style.display = 'none';
+            yesBtn.onclick = null;
+            noBtn.onclick = null;
+            };
+
+            // Handle user choice
+            yesBtn.onclick = () => {
+            cleanup();
+            resolve(true);  // Confirmed
+            };
+
+            noBtn.onclick = () => {
+            cleanup();
+            resolve(false); // Cancelled
+            };
+        });
+    }
+
+
+    clearAllBtn.onclick = async () => {
+        if (await floatConfirm('Clear all tasks?')) {
+            historyBody.innerHTML = '';
+            localStorage.removeItem('tasks');
+        }
+    };
+
+    function updateClock() {
+            const now = new Date(); //Get the current date and time
+            const optionsDay = { weekday: 'short' };
+            const optionsMonthYear = { month: 'long', year: 'numeric' };
+            const day = now.toLocaleDateString('en-US', optionsDay); // Get the day name
+            const monthYear = now.toLocaleDateString('en-US', optionsMonthYear);
+            const date = now.getDate().toString().padStart(2, '0'); // Get the date with leading zero if needed
+            const formattedDate = `${day} ${date} ${monthYear}`;
+            const formattedTime = now.toLocaleTimeString('en-US');
+            const dateTimeString = `${formattedDate} ${formattedTime}`;
+            document.getElementById('myClockDisplay').innerHTML = dateTimeString; // Update the clock display in the HTML
+        }
+    window.onload = () => {
+        updateDisplay();
+        loadTasks();
+        updateClock(); // Update the clock
+    };
+    </script>
+    
+</body>
+</html>
