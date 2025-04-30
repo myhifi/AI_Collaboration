@@ -54,6 +54,12 @@ This repository contains a collection of 12 small, single-page web applications.
 12. **primeChecker.html:** Prime Number Checker
     * Checks if a given number is prime.
     * Displays divisors and nearest prime numbers.
+   
+13. **problem_tracker.html:** Problem Solving Tracker
+    * A web tool with a timer to track problem-solving sessions.
+    * Logs task history with time spent, time remaining, status, and date.
+    * Saves task history locally in the browser.
+    * Allows resuming previous tasks and deleting entries.
 
 ## Technologies Used
 * HTML
