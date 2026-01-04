@@ -18,10 +18,10 @@ This repository contains a collection of 12 small, single-page web applications.
    * Displays results in a table with copy and delete functionality for individual result sets.
    * Includes input validation and a real-time clock.
 
-4. **Multi Searche.html:** Multi-Search Engines
+4. **MultiSearche0.html:** Multi-Search Engines
    * Provides a single input field to search across multiple search engines (Google, Bing, DuckDuckGo, Yahoo, Yandex, Ecosia, YouTube, Vimeo, Dailymotion, and Baidu).
 
-5. **MultiSearch Categorised.html:** Multi-Search Engines (Categorized)
+5. **MultiSearchCategorised.html:** Multi-Search Engines (Categorized)
    * Similar to "Multi Searche.html" but categorizes search engines into general and video search categories.
 
 6. **Multi_Searche.html:** Multi-Search Engines (Single Input, Multiple Buttons)
