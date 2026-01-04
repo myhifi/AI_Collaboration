@@ -60,8 +60,29 @@ This repository contains a collection of 12 small, single-page web applications.
     * Logs task history with time spent, time remaining, status, and date.
     * Saves task history locally in the browser.
     * Allows resuming previous tasks and deleting entries.
+14. Timer Problem Solving Tracker.html – Problem Solving Tracker
+    - A web tool with a timer to track problem-solving sessions.
+    - Logs task history with time spent, time remaining, status, and date.
+    - Saves task history locally in the browser.
+    - Allows resuming previous tasks and deleting entries.
 
-## Technologies Used
+15. **RevisionTool.html** # Code Review Pro 🚀
+A tool designed to help developers review large code one section at a time. Perfect for studying or preparing for technical interviews.
+## ✨ Features
+- **Focus Mode:** Click headers to reveal code; click code to hide it.
+- **Full CRUD:** Add, Edit, Delete, and Reorder snippets easily.
+- **Persistence:** All data is saved automatically to your browser's `localStorage`.
+- **Backup & Restore:** Export your collection to a `.json` file and import it on any device.
+
+## 🚀 How to Use
+1. Download the `index.html` file.
+2. Open it in any modern web browser.
+3. Add your questions (headers) and code snippets (answers).
+4. Start your distraction-free review session!
+
+
+
+## 🛠️ Technologies Used
 * HTML
 * CSS
 * JavaScript
